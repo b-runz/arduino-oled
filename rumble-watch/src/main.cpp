@@ -37,31 +37,36 @@
 uint8_t displayBuffer[512];
 
 // Write single byte to SPI
-void spiWrite(uint8_t data) {
+void spiWrite(uint8_t data)
+{
     SPI.transfer(data);
 }
 
 // Send command list to SSD1306
-void displaySendCommandList(const uint8_t *commands, uint8_t count) {
-    while (count--) {
+void displaySendCommandList(const uint8_t *commands, uint8_t count)
+{
+    while (count--)
+    {
         spiWrite(pgm_read_byte(commands++));
     }
 }
 
 // Send single command to SSD1306
-void displaySendCommand(uint8_t command) {
+void displaySendCommand(uint8_t command)
+{
     spiWrite(command);
 }
 
 // Update display with buffer contents
-void displayUpdate() {
+void displayUpdate()
+{
     digitalWrite(PIN_CS, LOW);
     static const uint8_t PROGMEM initCommands[] = {
         SSD1306_PAGEADDR,
-        0,                      // Page start
-        0xFF,                   // Page end
+        0,    // Page start
+        0xFF, // Page end
         SSD1306_COLUMNADDR,
-        0                       // Column start
+        0 // Column start
     };
     displaySendCommandList(initCommands, sizeof(initCommands));
     displaySendCommand(SCREEN_WIDTH - 1); // Column end
@@ -69,7 +74,8 @@ void displayUpdate() {
     uint16_t count = SCREEN_WIDTH * ((SCREEN_HEIGHT + 7) / 8);
     uint8_t *ptr = displayBuffer;
     digitalWrite(PIN_DC, HIGH);
-    while (count--) {
+    while (count--)
+    {
         spiWrite(*ptr++);
     }
     digitalWrite(PIN_CS, HIGH);
@@ -77,8 +83,9 @@ void displayUpdate() {
 }
 
 // Clear display buffer
-void displayClear() {
-    memset(displayBuffer, 0, sizeof(displayBuffer));
+void displayClear()
+{
+    memset(displayBuffer, 0, 512);
 }
 
 // Draw pixel in buffer
@@ -89,10 +96,13 @@ void displayDrawPixel(int16_t x, int16_t y, uint8_t color) {
 
     uint16_t index = x + (y / 8) * SCREEN_WIDTH;
     uint8_t bit = 1 << (y & 7);
-    
-    if (color) {
+
+    if (color)
+    {
         displayBuffer[index] |= bit;
-    } else {
+    }
+    else
+    {
         displayBuffer[index] &= ~bit;
     }
 }
@@ -108,12 +118,13 @@ void displayTestPattern() {
     displayUpdate();
 }
 
-void setup() {
+void setup()
+{
     // Initialize pins
     pinMode(PIN_DC, OUTPUT);
     pinMode(PIN_CS, OUTPUT);
     pinMode(PIN_RESET, OUTPUT);
-    
+
     digitalWrite(PIN_CS, HIGH);
     digitalWrite(PIN_CLK, LOW);
 
@@ -134,8 +145,7 @@ void setup() {
         SSD1306_DISPLAYOFF,
         SSD1306_SETDISPLAYCLOCKDIV,
         0x80,
-        SSD1306_SETMULTIPLEX
-    };
+        SSD1306_SETMULTIPLEX};
     displaySendCommandList(init1, sizeof(init1));
     displaySendCommand(SCREEN_HEIGHT - 1);
 
@@ -143,8 +153,7 @@ void setup() {
         SSD1306_SETDISPLAYOFFSET,
         0x0,
         SSD1306_SETSTARTLINE,
-        SSD1306_CHARGEPUMP
-    };
+        SSD1306_CHARGEPUMP};
     displaySendCommandList(init2, sizeof(init2));
     displaySendCommand(0x14);
 
@@ -152,8 +161,7 @@ void setup() {
         SSD1306_MEMORYMODE,
         0x00,
         SSD1306_SEGREMAP | 0x1,
-        SSD1306_COMSCANDEC
-    };
+        SSD1306_COMSCANDEC};
     displaySendCommandList(init3, sizeof(init3));
 
     displaySendCommand(SSD1306_SETCOMPINS);
@@ -170,15 +178,18 @@ void setup() {
         SSD1306_DISPLAYALLON_RESUME,
         SSD1306_NORMALDISPLAY,
         SSD1306_DEACTIVATE_SCROLL,
-        SSD1306_DISPLAYON
-    };
+        SSD1306_DISPLAYON};
     displaySendCommandList(init5, sizeof(init5));
 
     digitalWrite(PIN_CS, HIGH);
-
-    // Initial display
-    displayTestPattern();
+    bool flip = false;
+    while (1)
+    { // Initial display
+        displayTestPattern();
+        delay(1000);
+    }
 }
 
-void loop() {
+void loop()
+{
 }
