@@ -94,25 +94,36 @@ void displayDrawPixel(int16_t x, int16_t y, uint8_t color) {
         return;
     }
 
-    uint16_t index = x + (y / 8) * SCREEN_WIDTH;
-    uint8_t bit = 1 << (y & 7);
 
     if (color)
     {
-        displayBuffer[index] |= bit;
+        displayBuffer[x + (y / 8) * 128] |= (1 << (y & 7));
     }
     else
     {
-        displayBuffer[index] &= ~bit;
+        displayBuffer[x + (y / 8) * 128] &= ~(1 << (y & 7));
     }
 }
 
 // Draw test pattern (top half white, bottom half black)
-void displayTestPattern() {
+void displayTestPattern(bool flip)
+{
     displayClear();
-    for (int16_t x = 0; x < SCREEN_WIDTH; x++) {
-        for (int16_t y = 0; y < SCREEN_HEIGHT; y++) {
-            displayDrawPixel(x, y, y > SCREEN_HEIGHT / 2);
+    for (int16_t x = 0; x < SCREEN_WIDTH; x++)
+    {
+        if (flip)
+        {
+            for (int16_t y = 0; y < SCREEN_HEIGHT; y++)
+            {
+                displayDrawPixel(x, y, y > SCREEN_HEIGHT / 2);
+            }
+        }
+        else
+        {
+            for (int16_t y = 0; y < SCREEN_HEIGHT; y++)
+            {
+                displayDrawPixel(x, y, y < SCREEN_HEIGHT / 2);
+            }
         }
     }
     displayUpdate();
@@ -182,11 +193,21 @@ void setup()
     displaySendCommandList(init5, sizeof(init5));
 
     digitalWrite(PIN_CS, HIGH);
-    bool flip = false;
+    
+    pinMode(9, INPUT);
+
+    bool flip = 0;
     while (1)
-    { // Initial display
-        displayTestPattern();
-        delay(1000);
+    {
+        while (digitalRead(9) == 0)
+        {
+            delay(100);
+        }
+
+        displayTestPattern(flip);
+        flip = !flip;
+        
+        delay(200);
     }
 }
 
