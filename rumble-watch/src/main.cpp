@@ -257,6 +257,13 @@ void topAndBottomLower(bool withTop){
   }  
 }
 
+void blankSide(){
+  for (size_t i = 0; i < 2; i++)
+  {
+    SPI.transfer(0x00);
+  }
+}
+
 void printOne(){
   for (size_t i = 0; i < 7; i++)
   {
@@ -271,10 +278,7 @@ void printOne(){
 }
 
 void printTwo(){
-  for (size_t i = 0; i < 2; i++)
-  {
-    SPI.transfer(0x00);
-  }
+  blankSide();
   topAndBottomUpper(true);
   sideUpper();
   sideLower();
@@ -286,16 +290,10 @@ void printTwo(){
 }
 
 void printThree(){
-  for (size_t i = 0; i < 2; i++)
-  {
-    SPI.transfer(0x00);
-  }
+  blankSide();
   topAndBottomUpper(true);
   sideUpper();
-  for (size_t i = 0; i < 2; i++)
-  {
-    SPI.transfer(0x00);
-  }
+  blankSide();
   topAndBottomLower(true);
   sideLower();
 }
@@ -306,9 +304,7 @@ void printFour(){
     SPI.transfer(0b10000000);
   }
   sideUpper();
-  for (size_t i = 0; i < 2; i++){
-    SPI.transfer(0b0000000);
-  }
+  blankSide();
   for (size_t i = 0; i < 5; i++){
     SPI.transfer(0b0000001);
   }
@@ -328,18 +324,14 @@ void printFive(){
 void printSix(){
   sideUpper();
   topAndBottomUpper(true);
-  for (size_t i = 0; i < 2; i++){
-    SPI.transfer(0b0000000);
-  }
+  blankSide();
   sideLower();
   topAndBottomLower(true);
   sideLower();
 }
 
 void printSeven(){
-  for (size_t i = 0; i < 2; i++){
-    SPI.transfer(0b0000000);
-  }
+  blankSide();
   topAndBottomUpper(false);
   sideUpper();
   for (size_t i = 0; i < 7; i++){
