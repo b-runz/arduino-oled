@@ -484,11 +484,21 @@ void printClockDigit(uint8_t digit){
 
 void printHour(uint8_t hour){
   uint8_t onesDigit = hour % 10 ;
-  uint8_t hoursDigit = hour / 10;
+  uint8_t tensDigit = hour / 10;
 
   initDigit(1);
-  printClockDigit(hoursDigit);
+  printClockDigit(tensDigit);
   initDigit(2);
+  printClockDigit(onesDigit);
+}
+
+void printMinute(uint8_t hour){
+  uint8_t onesDigit = hour % 10 ;
+  uint8_t tensDigit = hour / 10;
+
+  initDigit(3);
+  printClockDigit(tensDigit);
+  initDigit(4);
   printClockDigit(onesDigit);
 }
 
@@ -513,6 +523,7 @@ void setup()
 
     uint8_t counter = 1;
     printHour(0);
+    printMinute(0);
     while (1)
     {
       while (digitalRead(9) == 0)
@@ -521,11 +532,11 @@ void setup()
       }
       delay(200);
 
-      if(counter == 24)
+      if(counter == 60)
       {
         counter = 0;
       }
-      printHour(counter);
+      printMinute(counter);
       
 
       counter++;
