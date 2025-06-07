@@ -434,41 +434,8 @@ void initDigit(uint8_t digit){
   digitalWrite(OLED_DC, HIGH); // Data mode
 }
 
-void setup()
-{
-
-    pinMode(9, INPUT);
-
-    // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-    ssd1306_begin();
-
-    // ssd1306_display();
-    // memset(ssd1306_buffer, 0, 512);
-    // init_ssd1306_buffer();
-    ssd1306_display();
-
-    initDigit(1);
-    // ssd1306_display();
-
-    // memset(ssd1306_buffer, 0xff, 512);
-    // ssd1306_display();
-
-    uint8_t counter = 1;
-    printNaught();
-    while (1)
-    {
-      while (digitalRead(9) == 0)
-      {
-          delay(100);
-      }
-      delay(200);
-
-      if(counter == 10)
-      {
-        counter = 0;
-      }
-
-      switch (counter)
+void printClockDigit(uint8_t digit){
+  switch (digit)
       {
           case 0:
               printNaught();
@@ -513,6 +480,53 @@ void setup()
           default:
               break;
       }
+}
+
+void printHour(uint8_t hour){
+  uint8_t onesDigit = hour % 10 ;
+  uint8_t hoursDigit = hour / 10;
+
+  initDigit(1);
+  printClockDigit(hoursDigit);
+  initDigit(2);
+  printClockDigit(onesDigit);
+}
+
+void setup()
+{
+
+    pinMode(9, INPUT);
+
+    // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+    ssd1306_begin();
+
+    // ssd1306_display();
+    // memset(ssd1306_buffer, 0, 512);
+    // init_ssd1306_buffer();
+    ssd1306_display();
+
+    initDigit(1);
+    // ssd1306_display();
+
+    // memset(ssd1306_buffer, 0xff, 512);
+    // ssd1306_display();
+
+    uint8_t counter = 1;
+    printHour(0);
+    while (1)
+    {
+      while (digitalRead(9) == 0)
+      {
+          delay(100);
+      }
+      delay(200);
+
+      if(counter == 24)
+      {
+        counter = 0;
+      }
+      printHour(counter);
+      
 
       counter++;
     }
