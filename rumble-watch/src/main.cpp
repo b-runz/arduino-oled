@@ -394,11 +394,6 @@ void ssd1306_set_pixel_page0_col0() {
 
   // Write data to set pixel at row 0 (COM0)
   digitalWrite(OLED_DC, HIGH); // Data mode
-  
-  printNaught();
-
-  // digitalWrite(OLED_CS, HIGH);
-  SPI.endTransaction();
 }
 
 void setup()
@@ -419,7 +414,8 @@ void setup()
     // memset(ssd1306_buffer, 0xff, 512);
     // ssd1306_display();
 
-    uint8_t counter = 0;
+    uint8_t counter = 1;
+    printNaught();
     while (1)
     {
       while (digitalRead(9) == 0)
