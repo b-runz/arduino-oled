@@ -445,57 +445,48 @@ void setup()
       {
           case 0:
               printNaught();
-              counter++;
               break;
           
           case 1:
               printOne();
-              counter++;
               break;
           
           case 2:
               printTwo();
-              counter++;
               break;
           
           case 3:
               printThree();
-              counter++;
               break;
           
           case 4:
               printFour();
-              counter++;
               break;
           
           case 5:
               printFive();
-              counter++;
               break;
           
           case 6:
               printSix();
-              counter++;
               break;
           
           case 7:
               printSeven();
-              counter++;
               break;
           
           case 8:
               printEight();
-              counter++;
               break;
           
           case 9:
               printNine();
-              counter++;
               break;
           
           default:
               break;
       }
 
+      counter++;
     }
 }
