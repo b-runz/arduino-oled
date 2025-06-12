@@ -12,9 +12,7 @@ void setup()
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   ssd1306_begin();
 
-  // ssd1306_display();
-  // memset(ssd1306_buffer, 0, 512);
-  // init_ssd1306_buffer();
+  init_ssd1306_buffer();
   ssd1306_display();
 
   DateTime datetime = {
