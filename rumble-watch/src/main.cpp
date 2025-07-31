@@ -1,48 +1,66 @@
 #include <display.h>
-#include <dateTimeDisplay.h>
+#include <clockDisplay.h>
 
 void setup()
 {
-  unsigned long startMillis;
-  unsigned long currentMillis;
-  const unsigned long period = 1000;
-
   pinMode(9, INPUT);
+  pinMode(3, INPUT);
 
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   ssd1306_begin();
 
   init_ssd1306_buffer();
   ssd1306_display();
 
-  DateTime datetime = {
-    8,
-    6,
-    25
-  };
+  initSeparator();
+  separatorOn();
+  printHour(0);
+  int8_t minute = 0;
 
-  printDate(&datetime);
-
-  // ssd1306_display();
-
-  // memset(ssd1306_buffer, 0xff, 512);
-  // ssd1306_display();
-
-  bool separatorToggle = false;
+  uint8_t encoderPinAStartingPos = digitalRead(9);
+  uint8_t encoderPinBStartingPos = digitalRead(3);
 
   while (1)
   {
-    while (digitalRead(9) == 0)
+    printMinute(minute);
+    while (digitalRead(9) == encoderPinAStartingPos && digitalRead(3) == encoderPinBStartingPos)
     {
-      // if(separatorToggle){
-      //   alarmIndicatorOff();
-      //   separatorToggle = true;
-      // } else {
-      //   alarmIndicatorOn();
-      //   separatorToggle = false;
-      // }
-      // delay(100);
     }
-    delay(200);
+
+    // Check if pinA went oppsite
+    if (digitalRead(9) != encoderPinAStartingPos && digitalRead(3) == encoderPinBStartingPos)
+    {
+      // Wait for the other pin to go opposite
+      while (digitalRead(3) == encoderPinBStartingPos)
+      {
+      }
+      delay(10);
+
+      minute++;
+      encoderPinAStartingPos = digitalRead(9);
+      encoderPinBStartingPos = digitalRead(3);
+
+    } else if (digitalRead(3) != encoderPinBStartingPos && digitalRead(9) == encoderPinAStartingPos)
+    {
+      // Wait for the other pin to go opposite
+      while (digitalRead(9) == encoderPinAStartingPos)
+      {
+      }
+      
+      delay(10);
+
+      minute--;
+      encoderPinAStartingPos = digitalRead(9);
+      encoderPinBStartingPos = digitalRead(3);
+
+    }
+
+    if (minute == 60)
+    {
+      minute = 0;
+    }
+    if (minute < 0)
+    {
+      minute = 59;
+    }
   }
 }

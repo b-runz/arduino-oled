@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "rumble-watch",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.page-template": "vue",
+			"*.layout-template": "vue",
+			"*.vue": "vue",
+			"datetimedisplay.h": "c"
+		}
+	}
+}
