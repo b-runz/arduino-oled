@@ -25,5 +25,7 @@ void printMinute(uint8_t minute);
 void initSeparator();
 void separatorOn();
 void separatorOff();
+void turnOffNumberMinute();
+void turnOffNumberHour();
 
 #endif // CLOCK_DISPLAY_H

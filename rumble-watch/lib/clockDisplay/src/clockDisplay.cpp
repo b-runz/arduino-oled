@@ -162,6 +162,34 @@ void printNaught()
   sideLower();
 }
 
+void turnOffNumberMinute()
+{
+  initDigit(3);
+  for (int i = 0; i < 18; i++)
+  {
+    SPI.transfer(0x00);
+  }
+  initDigit(4);
+  for (int i = 0; i < 18; i++)
+  {
+    SPI.transfer(0x00);
+  }
+}
+
+void turnOffNumberHour()
+{
+  initDigit(1);
+  for (int i = 0; i < 18; i++)
+  {
+    SPI.transfer(0x00);
+  }
+  initDigit(2);
+  for (int i = 0; i < 18; i++)
+  {
+    SPI.transfer(0x00);
+  }
+}
+
 void initDigit(uint8_t digit)
 {
   uint8_t columnStart = 0x13;
