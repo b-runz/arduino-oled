@@ -1,5 +1,6 @@
 #include <display.h>
 #include <clockDisplay.h>
+#include <alarmIndicator.h>
 
 enum SET_CLOCK_STATE
 {
@@ -12,6 +13,14 @@ enum SET_CLOCK_STATE
   SET_DATE_MONTH,
   SET_DATE_YEAR
 };
+
+struct LimitContainer {
+  uint8_t lower;
+  uint8_t higher;
+};
+
+const LimitContainer hourLimit = {23, 24};
+const LimitContainer minuteLimit = {59, 60};
 
 SET_CLOCK_STATE currentState = SHOW_DEFAULT_CLOCK;
 
@@ -53,7 +62,7 @@ bool getLongPressSwitchReading()
 uint8_t alarmSetHour = 0;
 uint8_t alarmSetMinute = 0;
 
-void readEncoder(int8_t *hourOrMinute, unsigned long *clockTimeOut)
+void readEncoder(int8_t *hourOrMinute, unsigned long* clockTimeOut, const LimitContainer* limitContainer)
 {
   uint8_t encoderPinAStartingPos = digitalRead(9);
   uint8_t encoderPinBStartingPos = digitalRead(3);
@@ -84,11 +93,13 @@ void readEncoder(int8_t *hourOrMinute, unsigned long *clockTimeOut)
     (*hourOrMinute)--;
   }
 
-  if (*hourOrMinute >= 60)
+  if (*hourOrMinute >= limitContainer->higher)
     *hourOrMinute = 0;
   if (*hourOrMinute < 0)
-    *hourOrMinute = 59;
+    *hourOrMinute = limitContainer->lower;
 }
+
+SET_CLOCK_STATE nextState = SHOW_DEFAULT_CLOCK;
 
 // Interrupt service routine
 void handleSwitchInterrupt()
@@ -96,9 +107,45 @@ void handleSwitchInterrupt()
   unsigned long currentTime = millis();
   if (currentTime - lastInterruptTime > 50)
   {
-    currentState = SHOW_DEFAULT_CLOCK;
+    currentState = nextState;
     lastInterruptTime = currentTime;
   }
+}
+
+void handleAlarmClockDigits(SET_CLOCK_STATE state, int8_t* hourOrMinute, void (*turnOffFunc)(), void (*printHourOrMinute)(uint8_t), const LimitContainer* limitContainer)
+{
+  attachInterrupt(digitalPinToInterrupt(2), handleSwitchInterrupt, FALLING);
+  unsigned long currentTime = millis();
+  bool onOff = false;
+  switchPressed = false; // Reset interrupt flag
+  initAlarmIndicator();
+  alarmIndicatorOn();
+  currentState = state;
+  while (currentState == state)
+  {
+    // Encoder part
+    readEncoder(hourOrMinute, &currentTime, limitContainer);
+
+    // Blink digit
+    if ((millis() - currentTime) > 200)
+    {
+      currentTime = millis();
+      onOff = !onOff;
+      if (onOff)
+      {
+        turnOffFunc();
+      }
+      else
+      {
+        printHourOrMinute(*hourOrMinute);
+      }
+    }
+  }
+  detachInterrupt(digitalPinToInterrupt(2));
+  delay(50);
+
+  initAlarmIndicator();
+  alarmIndicatorOff();
 }
 
 void setup()
@@ -136,32 +183,13 @@ void setup()
       break;
 
     case SET_HOUR_ALARM:
-      attachInterrupt(digitalPinToInterrupt(2), handleSwitchInterrupt, FALLING);
-      unsigned long currentTime = millis();
-      bool onOff = false;
-      switchPressed = false; // Reset interrupt flag
-      while (currentState == SET_HOUR_ALARM)
-      {
-        // Encoder part
-        readEncoder(&hour, &currentTime);
+      nextState = SET_MINUTE_ALARM;
+      handleAlarmClockDigits(SET_HOUR_ALARM, &hour, turnOffNumberHour, printHour, &hourLimit);
+      break;
 
-        // Blink digit
-        if ((millis() - currentTime) > 200)
-        {
-          currentTime = millis();
-          onOff = !onOff;
-          if (onOff)
-          {
-            turnOffNumberHour();
-          }
-          else
-          {
-            printHour(hour);
-          }
-        }
-      }
-      detachInterrupt(digitalPinToInterrupt(2));
-      delay(50); // Allow switch to settle
+    case SET_MINUTE_ALARM:
+      nextState = SHOW_DEFAULT_CLOCK;
+      handleAlarmClockDigits(SET_MINUTE_ALARM, &minute, turnOffNumberMinute, printMinute, &minuteLimit);
       break;
 
     default:

@@ -24,14 +24,13 @@ void initAlarmIndicator()
 
 void alarmIndicatorOn()
 {
-  const uint8_t spiData[] = {
+    const uint8_t spiData[] = {
       0b00001110, 0b00000101, 0b00001110, 0b00000000,            // Sequence 1
       0b00001111, 0b00001000, 0b00000000,                        // Sequence 2
       0b00001110, 0b00000101, 0b00001110, 0b00000000,            // Sequence 3
       0b00001111, 0b00000101, 0b00001010, 0b00000000,            // Sequence 4
       0b00001110, 0b00000001, 0b00000110, 0b00000001, 0b00001110 // Sequence 5
   };
-
   for (size_t i = 0; i < sizeof(spiData); i++)
   {
     SPI.transfer(spiData[i]);
